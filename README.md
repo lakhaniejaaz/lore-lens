@@ -7,13 +7,14 @@ and future media like films and research papers.
 
 When reading books or playing narrative-heavy games, key events, characters, and relationships are easy to forget or misremember. Existing tools don’t provide a structured, searchable way to capture and revisit this knowledge over time.
 
-## MVP Scope
-- User Authentication
-- User owned entries 
-- Knowledge entities
-- Search
-
 ## Tech Stack
 - Frontend: React + TypeScript
 - Backend: FastAPI
 - DB: PostgreSQL
+
+## Core User Flow
+
+1. User creates an account
+2. User creates a work (book or game)
+3. User adds knowledge entities to the work
+4. User views entities grouped by work
