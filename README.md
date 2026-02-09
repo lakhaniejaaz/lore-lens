@@ -18,3 +18,12 @@ When reading books or playing narrative-heavy games, key events, characters, and
 2. User creates a work (book or game)
 3. User adds knowledge entities to the work
 4. User views entities grouped by work
+
+## Running the App
+- To run the app enter command in main /lore-lens cirectory
+
+```bash
+docker compose up --build 
+```
+
+you can then see the backend hosted at http://0.0.0.0:8080
