@@ -26,4 +26,4 @@ When reading books or playing narrative-heavy games, key events, characters, and
 docker compose up --build 
 ```
 
-you can then see the backend hosted at http://0.0.0.0:8080
+you can then see the backend hosted at http://0.0.0.0:8080 the fronend will be hosted at http://0.0.0.0:3000
