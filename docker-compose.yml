@@ -9,12 +9,18 @@ services:
     volumes:
       - db_data:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "5433:5432"
   
   backend:
     container_name: lore_lens_backend
     build: ./backend
     command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080"]
+    environment:
+      DATABASE_URL: postgresql+psycopg://lore_lens_user:lore_lens_password@db:5432/lore_lens_db
+      JWT_SECRET_KEY: dev-secret-change-me
+      JWT_ALGORITHM: HS256
+      ACCESS_TOKEN_EXPIRE_MINUTES: "60"
+      ENVIRONMENT: local
     ports:
       - "8080:8080"
     volumes:
