@@ -27,3 +27,7 @@ docker compose up --build
 ```
 
 you can then see the backend hosted at http://0.0.0.0:8080 the fronend will be hosted at http://0.0.0.0:3000
+
+# Testing the App 
+
+Instructions on backend tests/apis can be found in backend/README.md
