@@ -32,9 +32,18 @@ Useful variations (append flags after `pytest`):
 
 If you have a local Python environment with `backend/requirements.txt` installed and your host can reach the DB directly (see the port-conflict note below), you can skip `docker compose run` and just run `pytest` from the `backend/` directory with `TEST_DATABASE_URL` exported.
 
-### Manually testing the endpoint (Postman)
+If the stack is already up (`docker compose up`), use `exec` instead of `run` to reuse the running `backend` container rather than creating a new one:
+```bash
+docker compose exec \
+  -e TEST_DATABASE_URL=postgresql+psycopg://lore_lens_user:lore_lens_password@db:5432/lore_lens_test_db \
+  backend pytest -v
+```
+
+### Manually testing the endpoints (Postman)
 
 Start the full stack: `docker compose up --build` (backend is then reachable at `http://localhost:8080`).
+
+#### `POST /auth/register`
 
 Base request setup, used for every case below:
 - Method: `POST`
@@ -60,7 +69,43 @@ Send it. Expect status `201` and a JSON body with no password/hash fields. Open 
 
 **Malformed JSON:** in the raw body editor, type invalid JSON directly, e.g. `{not valid json` (Postman won't block sending it even though its JSON linter flags it). Expect `422` with `{"error": {"code": "validation_error", ...}}`.
 
-**Inspecting the JWT claims:** open **Cookies** (bottom of the response, or Postman's cookie manager for `localhost`), copy the `access_token` value, and decode it at a tool like jwt.io — no signature verification needed to read the claims (`sub`, `iat`, `exp`).
+#### `POST /auth/login`
+
+Base request setup:
+- Method: `POST`
+- URL: `http://localhost:8080/auth/login`
+- Headers: `Content-Type: application/json`
+- Body: select **raw** → **JSON**
+
+Register a user first (see above), then use its username/password below.
+
+**Successful login:**
+```json
+{
+  "username": "lakhaniejaaz",
+  "password": "password123"
+}
+```
+Send it. Expect status `200` with `{"status": "success", "data": {"user": {...}}}` containing no password/hash fields. Confirm the `access_token` cookie is set the same way as registration (`HttpOnly`, `SameSite=Lax`, `Path=/`). Username is matched case-insensitively and after trimming whitespace, so `"Lakhaniejaaz"` or `"  lakhaniejaaz  "` also succeed.
+
+**Invalid credentials:** change `password` to something wrong, or `username` to something that doesn't exist, or both. All three cases return the same `401` body:
+```json
+{
+  "error": {
+    "code": "invalid_credentials",
+    "message": "Username or password is incorrect."
+  }
+}
+```
+Confirm the response has no `Set-Cookie` header in any of these cases.
+
+**Validation error:** send an empty `username`, an empty `password`, or a whitespace-only `username` (e.g. `"   "`). Expect `422` with `{"error": {"code": "validation_error", ...}}`.
+
+**Malformed JSON:** same as registration — type invalid JSON directly in the raw body editor. Expect `422`.
+
+#### Inspecting the JWT claims
+
+Open **Cookies** (bottom of the response, or Postman's cookie manager for `localhost`), copy the `access_token` value, and decode it at a tool like jwt.io — no signature verification needed to read the claims (`sub`, `iat`, `exp`). This applies to both `/auth/register` and `/auth/login`, since both issue the token the same way.
 
 ### Port conflict note
 
