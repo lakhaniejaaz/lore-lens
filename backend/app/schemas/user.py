@@ -73,3 +73,38 @@ class UserResponse(BaseModel):
 
 class UserRegisterResponse(BaseModel):
     user: UserResponse
+
+
+class UserLoginRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    username: str
+    password: str
+
+    @field_validator("username")
+    @classmethod
+    def validate_username(cls, v: str) -> str:
+        v = v.strip()
+        if not v:
+            raise ValueError("Username is required.")
+        if not (3 <= len(v) <= 50):
+            raise ValueError("Username must be between 3 and 50 characters.")
+        return v.lower()
+
+    @field_validator("password")
+    @classmethod
+    def validate_password(cls, v: str) -> str:
+        # Never strip: a whitespace-only or whitespace-padded password must be
+        # preserved exactly and left to fail verification, not validation.
+        if len(v) == 0:
+            raise ValueError("Password is required.")
+        return v
+
+
+class UserLoginData(BaseModel):
+    user: UserResponse
+
+
+class UserLoginResponse(BaseModel):
+    status: str = "success"
+    data: UserLoginData

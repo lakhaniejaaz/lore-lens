@@ -32,6 +32,12 @@ class InternalServerError(AppError):
     pass
 
 
+class InvalidCredentialsError(AppError):
+    status_code = 401
+    code = "invalid_credentials"
+    message = "Username or password is incorrect."
+
+
 def register_exception_handlers(app: FastAPI) -> None:
     @app.exception_handler(AppError)
     async def app_error_handler(request: Request, exc: AppError):

@@ -19,7 +19,9 @@ from fastapi.testclient import TestClient
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 
+from app.core.security import hash_password
 from app.db.base import Base
+from app.db.models.user import User
 from app.db.session import get_db
 from app.main import app
 
@@ -67,3 +69,18 @@ def valid_payload():
         "email": "ada@example.com",
         "password": "correct-horse",
     }
+
+
+@pytest.fixture
+def existing_user(db_session, valid_payload):
+    user = User(
+        first_name=valid_payload["first_name"],
+        last_name=valid_payload["last_name"],
+        username=valid_payload["username"],
+        email=valid_payload["email"],
+        hashed_password=hash_password(valid_payload["password"]),
+    )
+    db_session.add(user)
+    db_session.commit()
+    db_session.refresh(user)
+    return user
