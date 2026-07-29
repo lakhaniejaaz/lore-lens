@@ -25,7 +25,7 @@ docker compose run --rm \
 `TEST_DATABASE_URL` must point at a database separate from the app's dev DB — `tests/conftest.py` creates all tables in it at the start of the session and truncates them after each test.
 
 Useful variations (append flags after `pytest`):
-- Run a single file: `... backend pytest -v tests/test_auth_register.py`
+- Run a single file: `... backend pytest -v tests/test_auth_register.py` (or `tests/test_auth_login.py`, `tests/test_auth_logout.py`)
 - Run a single test: `... backend pytest -v tests/test_auth_register.py::test_register_success_returns_201_with_expected_user_shape`
 - Run tests matching a keyword: `... backend pytest -v -k duplicate`
 - Stop on first failure: `... backend pytest -x`
@@ -102,6 +102,17 @@ Confirm the response has no `Set-Cookie` header in any of these cases.
 **Validation error:** send an empty `username`, an empty `password`, or a whitespace-only `username` (e.g. `"   "`). Expect `422` with `{"error": {"code": "validation_error", ...}}`.
 
 **Malformed JSON:** same as registration — type invalid JSON directly in the raw body editor. Expect `422`.
+
+#### `POST /auth/logout`
+
+Base request setup:
+- Method: `POST`
+- URL: `http://localhost:8080/auth/logout`
+- Body: none
+
+**Successful logout:** send the request with no body. Expect status `200` with `{"status": "success"}`. Open the response's **Cookies** tab and confirm `access_token` is being cleared (an empty value with an immediately expired/`Max-Age=0` cookie), using the same `HttpOnly`, `SameSite=Lax`, and `Path=/` attributes as registration and login.
+
+This endpoint requires no authentication and does not read the `access_token` cookie, so it behaves identically whether the cookie is present, missing, expired, or invalid — always `200`, always clearing the cookie the same way. It also never touches the database.
 
 #### Inspecting the JWT claims
 
