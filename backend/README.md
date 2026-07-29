@@ -25,7 +25,7 @@ docker compose run --rm \
 `TEST_DATABASE_URL` must point at a database separate from the app's dev DB — `tests/conftest.py` creates all tables in it at the start of the session and truncates them after each test.
 
 Useful variations (append flags after `pytest`):
-- Run a single file: `... backend pytest -v tests/test_auth_register.py` (or `tests/test_auth_login.py`, `tests/test_auth_logout.py`)
+- Run a single file: `... backend pytest -v tests/test_auth_register.py` (or `tests/test_auth_login.py`, `tests/test_auth_logout.py`, `tests/test_auth_me.py`)
 - Run a single test: `... backend pytest -v tests/test_auth_register.py::test_register_success_returns_201_with_expected_user_shape`
 - Run tests matching a keyword: `... backend pytest -v -k duplicate`
 - Stop on first failure: `... backend pytest -x`
@@ -113,6 +113,41 @@ Base request setup:
 **Successful logout:** send the request with no body. Expect status `200` with `{"status": "success"}`. Open the response's **Cookies** tab and confirm `access_token` is being cleared (an empty value with an immediately expired/`Max-Age=0` cookie), using the same `HttpOnly`, `SameSite=Lax`, and `Path=/` attributes as registration and login.
 
 This endpoint requires no authentication and does not read the `access_token` cookie, so it behaves identically whether the cookie is present, missing, expired, or invalid — always `200`, always clearing the cookie the same way. It also never touches the database.
+
+#### `GET /auth/me`
+
+Base request setup:
+- Method: `GET`
+- URL: `http://localhost:8080/auth/me`
+- Body: none
+
+Register or log in first (see above) so Postman's cookie jar has a valid `access_token` cookie for `localhost`.
+
+**Successful request:** send the request with no body. Expect status `200` with the authenticated user's safe fields, e.g.:
+```json
+{
+  "id": 1,
+  "first_name": "Ejaaz",
+  "last_name": "Lakhani",
+  "username": "lakhaniejaaz",
+  "email": "ejaaz@example.com",
+  "created_at": "2026-07-29T12:00:00Z"
+}
+```
+No password, password hash, or JWT is present in the response.
+
+**Authentication failure:** clear the `access_token` cookie (or edit it to an invalid value) in Postman's cookie manager and resend. Expect `401`:
+```json
+{
+  "error": {
+    "code": "not_authenticated",
+    "message": "Not authenticated."
+  }
+}
+```
+The same `401` body is returned for a missing cookie, an expired/malformed/invalid-signature JWT, or a JWT referencing a user that no longer exists — the response never reveals which case occurred.
+
+This endpoint is read-only and never modifies the database.
 
 #### Inspecting the JWT claims
 
