@@ -14,6 +14,7 @@ from app.core.security import create_access_token, hash_password, verify_passwor
 from app.db.models.user import User
 from app.db.session import get_db
 from app.schemas.user import (
+    LogoutResponse,
     UserLoginRequest,
     UserLoginResponse,
     UserRegisterRequest,
@@ -49,6 +50,18 @@ def _set_auth_cookie(response: Response, token: str, max_age: int) -> None:
         samesite="lax",
         path="/",
         max_age=max_age,
+    )
+
+
+def _clear_auth_cookie(response: Response) -> None:
+    # Attributes must match _set_auth_cookie so the browser recognizes this as
+    # the same cookie and actually deletes it rather than setting an unrelated one.
+    response.delete_cookie(
+        key="access_token",
+        httponly=True,
+        secure=(settings.ENVIRONMENT == "production"),
+        samesite="lax",
+        path="/",
     )
 
 
@@ -111,3 +124,15 @@ def login_user(payload: UserLoginRequest, response: Response, db: Session = Depe
     _set_auth_cookie(response, token, max_age)
 
     return {"data": {"user": user}}
+
+
+@router.post("/logout", status_code=status.HTTP_200_OK, response_model=LogoutResponse)
+def logout_user(response: Response):
+    # No auth required and no JWT decoding: logout must succeed even when the
+    # cookie is missing, expired, or invalid, so nothing here can depend on it.
+    try:
+        _clear_auth_cookie(response)
+    except Exception:
+        raise InternalServerError()
+
+    return {"status": "success"}

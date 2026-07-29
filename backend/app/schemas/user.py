@@ -108,3 +108,7 @@ class UserLoginData(BaseModel):
 class UserLoginResponse(BaseModel):
     status: str = "success"
     data: UserLoginData
+
+
+class LogoutResponse(BaseModel):
+    status: str = "success"
