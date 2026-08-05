@@ -1,0 +1,10 @@
+.form-error {
+  margin: 0;
+  padding: 0.65rem 0.8rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  color: var(--color-error);
+  background-color: rgba(155, 58, 44, 0.1);
+  border: 1px solid rgba(155, 58, 44, 0.35);
+  text-align: left;
+}

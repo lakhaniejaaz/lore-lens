@@ -1,17 +1,102 @@
-# React + TypeScript + Vite
+# Front End
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React + TypeScript app for Lore Lens, built with Vite.
 
-Currently, two official plugins are available:
+## Prerequisites
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Node 20+ (matches the Docker image)
 
-## React Compiler
+## Getting Started
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Install dependencies:
+```bash
+npm install
+```
 
-## Expanding the ESLint configuration
+Copy the example env file and adjust if your backend runs somewhere other than `http://localhost:8080`:
+```bash
+cp .env.example .env
+```
+`VITE_API_URL` controls the backend base URL used by `src/api/client.ts`. If unset, it falls back to `http://localhost:8080`.
+
+Start the dev server:
+```bash
+npm run dev
+```
+The app is served at `http://localhost:5173` by default.
+
+### Running via Docker
+
+From the repo root:
+```bash
+docker compose up --build
+```
+This serves the frontend at `http://localhost:3000` and the backend at `http://localhost:8080`. See the root `README.md` for the full stack.
+
+Note: the backend does not currently send CORS headers, so requests from the frontend (port 3000/5173) to the backend (port 8080) will be rejected by the browser until CORS support is added on the backend.
+
+## Routes
+
+- `/login` — sign-in page
+- `/home` — temporary placeholder page shown after a successful login
+- `/` — redirects to `/login`
+
+## Testing
+
+Tests use [Vitest](https://vitest.dev/) with [Testing Library](https://testing-library.com/) and run in a jsdom environment (configured in `vite.config.ts`, setup file at `src/test/setup.ts`).
+
+Run the full suite once:
+```bash
+npm run test
+```
+
+Run in watch mode:
+```bash
+npm run test:watch
+```
+
+Run a single file:
+```bash
+npx vitest run src/pages/LoginPage/LoginPage.test.tsx
+```
+
+Tests are colocated with the code they cover (e.g. `LoginPage.tsx` / `LoginPage.test.tsx`).
+
+## Type Checking
+
+```bash
+npx tsc -b
+```
+
+## Linting
+
+```bash
+npm run lint
+```
+
+## Production Build
+
+```bash
+npm run build
+```
+Runs a type check (`tsc -b`) followed by `vite build`. Output goes to `dist/`.
+
+Preview the production build locally:
+```bash
+npm run preview
+```
+
+## Project Structure
+
+```
+src/
+  api/          fetch-based API client and typed error mapping
+  components/   reusable UI components (TextField, Button, FormError)
+  pages/        route-level pages (LoginPage, HomePage)
+  test/         Vitest setup (Testing Library cleanup, jest-dom matchers)
+```
+
+## Expanding the ESLint Configuration
 
 If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
 
@@ -31,35 +116,6 @@ export default defineConfig([
       tseslint.configs.stylisticTypeChecked,
 
       // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
     ],
     languageOptions: {
       parserOptions: {
