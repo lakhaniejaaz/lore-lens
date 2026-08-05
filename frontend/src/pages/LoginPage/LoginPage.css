@@ -1,0 +1,49 @@
+.login-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 1.5rem;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 500px;
+  padding: 32px 0;
+  border-radius: 20px;
+  background-color: var(--color-card-bg);
+  text-align: center;
+}
+
+.login-card__title {
+  margin: 0 0 8px;
+  font-size: 36px;
+  color: var(--color-title);
+}
+
+.login-card__subtitle {
+  margin: 0 0 25px;
+  font-size: 16px;
+  color: var(--color-text-muted);
+}
+
+.login-card__form {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  padding: 0 32px;
+}
+
+.login-card__submit {
+  margin-top: 16px;
+}
+
+.login-card__actions {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.login-card__actions > * {
+  flex: 1;
+}
