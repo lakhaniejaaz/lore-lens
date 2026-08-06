@@ -33,7 +33,7 @@ docker compose up --build
 ```
 This serves the frontend at `http://localhost:3000` and the backend at `http://localhost:8080`. See the root `README.md` for the full stack.
 
-Note: the backend does not currently send CORS headers, so requests from the frontend (port 3000/5173) to the backend (port 8080) will be rejected by the browser until CORS support is added on the backend.
+Note: the backend allows credentialed CORS requests from `http://localhost:5173` and `http://localhost:3000` by default (see `backend/.env.example`'s `CORS_ALLOWED_ORIGINS`). If you serve the frontend from a different origin, add it to that variable on the backend.
 
 ## Routes
 
